@@ -1,6 +1,8 @@
 # Databricks notebook source
 # MAGIC %md # Export Run
 # MAGIC 
+# MAGIC ## To be executed in source workspace
+# MAGIC 
 # MAGIC ##### Overview
 # MAGIC * Exports an run and its artifacts to a folder.
 # MAGIC * Output file `run.json` contains top-level run metadata.
@@ -118,6 +120,8 @@ os.environ['OUTPUT_DIR'] = output_dir
 # COMMAND ----------
 
 # MAGIC %md # Import Run
+# MAGIC 
+# MAGIC ## To be executed in destination workspace
 
 # COMMAND ----------
 

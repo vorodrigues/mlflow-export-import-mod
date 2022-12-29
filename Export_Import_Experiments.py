@@ -1,6 +1,8 @@
 # Databricks notebook source
 # MAGIC %md # Export Experiments
 # MAGIC 
+# MAGIC ## To be executed in source workspace
+# MAGIC 
 # MAGIC Widgets
 # MAGIC * Experiments - comma delimited - either experiment ID or experiment name
 # MAGIC * Based output directory
@@ -72,6 +74,8 @@ output_dir
 # COMMAND ----------
 
 # MAGIC %md # Import Experiments
+# MAGIC 
+# MAGIC ## To be executed in destination workspace
 
 # COMMAND ----------
 
@@ -88,40 +92,6 @@ print("input_dir:",input_dir)
 # COMMAND ----------
 
 if len(input_dir)==0: raise Exception("ERROR: Input directory is required")
-
-# COMMAND ----------
-
-from mlflow_export_import.bulk.import_experiments import import_experiments
-import mlflow
-import_experiments(
-    client=mlflow.tracking.MlflowClient(),
-    input_dir=input_dir, 
-    use_src_user_id=False, 
-    use_threads=use_threads)
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-# MAGIC %fs ls /FileStore/vr/mlflow_export_import/experiments
-
-# COMMAND ----------
-
-# MAGIC %sh zip -r experiments.zip /dbfs/FileStore/vr/mlflow_export_import/experiments
-
-# COMMAND ----------
-
-# MAGIC %fs cp file:/Workspace/Repos/victor.rodrigues@databricks.com/mlflow-export-import-mod/experiments.py s3://oetrta/vr/mlflow_export_import/experiments.zip
 
 # COMMAND ----------
 
