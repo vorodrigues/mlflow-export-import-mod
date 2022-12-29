@@ -51,11 +51,16 @@ def set_experiment(mlflow_client, dbx_client, exp_name, tags=None):
     For Databricks, create the workspace directory if it doesn't exist.
     :return: Experiment ID
     """
+    exp_name = exp_name.replace('/Repos/','/Users/')
     from mlflow_export_import import utils
     if utils.importing_into_databricks():
         create_workspace_dir(dbx_client, os.path.dirname(exp_name))
     try:
         if not tags: tags = {}
+        elif tags.get('mlflow.experiment.sourceType', None) == 'REPO_NOTEBOOK':
+          tags.pop('mlflow.experiment.sourceId', None)
+          tags.pop('mlflow.experiment.sourceName', None)
+          tags.pop('mlflow.experiment.sourceType', None)
         return mlflow_client.create_experiment(exp_name, tags=tags)
     except Exception:
         exp = mlflow_client.get_experiment_by_name(exp_name)

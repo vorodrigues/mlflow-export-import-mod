@@ -31,6 +31,13 @@ def _import_experiments(client, input_dir, use_src_user_id):
     exps = manifest["experiments"]
     importer = ExperimentImporter(client, use_src_user_id)
     print("Experiments:")
+    
+    l = []
+    for exp in exps:
+      exp.update(name=exp['name'].replace('/Repos/','/Users/'))
+      l.append(exp)
+    exps = l
+    
     for exp in exps: 
         print(" ",exp)
     run_info_map = {}
