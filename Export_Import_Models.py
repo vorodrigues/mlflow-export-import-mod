@@ -41,14 +41,6 @@ if len(output_dir)==0: raise Exception("ERROR: Output base directory is required
 
 # COMMAND ----------
 
-# MAGIC %fs rm -r dbfs:/mnt/oetrta/vr/mlflow_export_import/models
-
-# COMMAND ----------
-
-# MAGIC %fs ls dbfs:/mnt/oetrta/vr/mlflow_export_import/
-
-# COMMAND ----------
-
 import os
 import time
 import mlflow
