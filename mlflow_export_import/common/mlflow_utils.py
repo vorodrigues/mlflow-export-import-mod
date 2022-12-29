@@ -93,6 +93,7 @@ def create_workspace_dir(dbx_client, workspace_dir):
     """
     Create Databricks workspace directory.
     """
+    workspace_dir = workspace_dir.replace('/Repos/','/Users/')
     print(f"Creating Databricks workspace directory '{workspace_dir}'")
     dbx_client.post("workspace/mkdirs", { "path": workspace_dir })
 

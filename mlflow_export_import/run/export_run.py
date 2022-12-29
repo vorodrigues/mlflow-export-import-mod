@@ -96,8 +96,9 @@ class RunExporter:
             revision_id = tags["mlflow.databricks.notebookRevisionID"]
         except:
             revision_id = None
-        notebook_path = tags["mlflow.databricks.notebookPath"]
+        notebook_path = tags["mlflow.databricks.notebookPath"].replace('/Repos/','/Users/')
         notebook_name = os.path.basename(notebook_path)
+        print(f'### {notebook_path} ###')
         manifest = { 
            "mlflow.databricks.notebookRevisionID": revision_id, 
            "mlflow.databricks.notebookPath": notebook_path,
