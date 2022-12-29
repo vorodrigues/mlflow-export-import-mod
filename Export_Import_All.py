@@ -1,14 +1,13 @@
 # Databricks notebook source
-# MAGIC %md # Export Experiments
+# MAGIC %md # Export All
+# MAGIC 
+# MAGIC ## To be executed in source workspace
 # MAGIC 
 # MAGIC Widgets
-# MAGIC * Experiments - comma delimited - either experiment ID or experiment name
-# MAGIC * Based output directory
+# MAGIC * Base output directory
 # MAGIC * Export source tags
 # MAGIC * Notebook formats
 # MAGIC * Use threads
-# MAGIC 
-# MAGIC See https://github.com/mlflow/mlflow-export-import/blob/master/README_bulk.md#experiments.
 
 # COMMAND ----------
 
@@ -58,27 +57,29 @@ output_dir
 
 # COMMAND ----------
 
-# MAGIC %sh cat $OUTPUT_DIR/manifest.json
-
-# COMMAND ----------
-
 # MAGIC %sh ls -lR $OUTPUT_DIR
 
 # COMMAND ----------
 
-# MAGIC %md # Import Experiments
+# MAGIC %md # Import All
+# MAGIC 
+# MAGIC ## To be executed in destination workspace
 
 # COMMAND ----------
 
-# dbutils.widgets.text("1. Input directory", "") 
-# input_dir = dbutils.widgets.get("1. Input directory")
-# input_dir = input_dir.replace("dbfs:","/dbfs")
-input_dir = output_dir
+dbutils.widgets.text("1. Input directory", "") 
+input_dir = dbutils.widgets.get("1. Input directory")
+input_dir = input_dir.replace("dbfs:","/dbfs")
 
-# dbutils.widgets.dropdown("2. Use threads","no",["yes","no"])
-# use_threads = dbutils.widgets.get("2. Use threads") == "yes"
+dbutils.widgets.dropdown("2. Import source tags","no",["yes","no"])
+import_source_tags = dbutils.widgets.get("2. Import source tags") == "yes"
+
+dbutils.widgets.dropdown("3. Use threads","no",["yes","no"])
+use_threads = dbutils.widgets.get("3. Use threads") == "yes"
 
 print("input_dir:",input_dir)
+print("import_source_tags:",import_source_tags)
+print("use_threads:",use_threads)
 
 # COMMAND ----------
 
@@ -86,44 +87,12 @@ if len(input_dir)==0: raise Exception("ERROR: Input directory is required")
 
 # COMMAND ----------
 
-from mlflow_export_import.bulk.import_experiments import import_experiments
+from mlflow_export_import.bulk.import_models import import_all
 import mlflow
-import_experiments(
-    client=mlflow.tracking.MlflowClient(),
-    input_dir=input_dir, 
-    use_src_user_id=False, 
-    use_threads=use_threads)
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-# MAGIC %fs ls /FileStore/vr/mlflow_export_import/experiments
-
-# COMMAND ----------
-
-# MAGIC %sh zip -r experiments.zip /dbfs/FileStore/vr/mlflow_export_import/experiments
-
-# COMMAND ----------
-
-# MAGIC %fs cp file:/Workspace/Repos/victor.rodrigues@databricks.com/mlflow-export-import-mod/experiments.py s3://oetrta/vr/mlflow_export_import/experiments.zip
-
-# COMMAND ----------
-
-from mlflow_export_import.bulk.import_experiments import import_experiments
-import mlflow
-import_experiments(
-    client=mlflow.tracking.MlflowClient(),
-    input_dir=input_dir, 
-    use_src_user_id=False, 
-    use_threads=use_threads)
+import_all(
+  client=mlflow.tracking.MlflowClient(),
+  input_dir=input_dir,
+  delete_model=False,
+  import_source_tags=import_source_tags,
+  use_threads=use_threads
+)

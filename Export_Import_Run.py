@@ -83,10 +83,6 @@ dbutils.fs.rm(output_dir, True)
 
 # COMMAND ----------
 
-# MAGIC %md ### Export the run
-
-# COMMAND ----------
-
 from mlflow_export_import.run.export_run import RunExporter
 exporter = RunExporter(mlflow.tracking.MlflowClient(), export_source_tags, notebook_formats)
 exporter.export_run(run_id, output_dir)
@@ -130,12 +126,10 @@ os.environ['OUTPUT_DIR'] = output_dir
 # COMMAND ----------
 
 # dbutils.widgets.text("1. Destination experiment name", "") 
-# experiment_name = dbutils.widgets.get("1. Destination experiment name")
-experiment_name = '/Users/victor.rodrigues@databricks.com/Others/tests/mlflow_export_import/imports/suave-flea-imported'
+experiment_name = dbutils.widgets.get("1. Destination experiment name")
 
 # dbutils.widgets.text("2. Input directory", "") 
-# input_dir = dbutils.widgets.get("2. Input directory")
-input_dir = output_dir
+input_dir = dbutils.widgets.get("2. Input directory")
  
 print("input_dir:",input_dir)
 print("experiment_name:",experiment_name)

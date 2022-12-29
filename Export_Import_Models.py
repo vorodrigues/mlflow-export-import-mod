@@ -1,21 +1,18 @@
 # Databricks notebook source
-# MAGIC %md # Export Experiments
+# MAGIC %md # Export Models
 # MAGIC 
 # MAGIC ## To be executed in source workspace
 # MAGIC 
 # MAGIC Widgets
-# MAGIC * Experiments - comma delimited - either experiment ID or experiment name
-# MAGIC * Based output directory
+# MAGIC * Base output directory
 # MAGIC * Export source tags
 # MAGIC * Notebook formats
 # MAGIC * Use threads
-# MAGIC 
-# MAGIC See https://github.com/mlflow/mlflow-export-import/blob/master/README_bulk.md#experiments.
 
 # COMMAND ----------
 
-dbutils.widgets.text("1. Experiments", "") 
-experiments = dbutils.widgets.get("1. Experiments")
+dbutils.widgets.text("1. Models", "") 
+models = dbutils.widgets.get("1. Models")
 
 dbutils.widgets.text("2. Output base directory", "") 
 output_dir = dbutils.widgets.get("2. Output base directory")
@@ -31,7 +28,7 @@ notebook_formats = dbutils.widgets.get("4. Notebook formats")
 dbutils.widgets.dropdown("5. Use threads","no",["yes","no"])
 use_threads = dbutils.widgets.get("5. Use threads") == "yes"
 
-print("experiments:",experiments)
+print("models:",models)
 print("output_dir:",output_dir)
 print("export_source_tags:",export_source_tags)
 print("notebook_formats:",notebook_formats)
@@ -39,14 +36,32 @@ print("use_threads:",use_threads)
 
 # COMMAND ----------
 
-if len(experiments)==0: raise Exception("ERROR: Experiments are required")
+if len(models)==0: raise Exception("ERROR: Models are required")
 if len(output_dir)==0: raise Exception("ERROR: Output base directory is required")
 
 # COMMAND ----------
 
+import os
+import time
 import mlflow
-from mlflow_export_import.bulk.export_experiments import export_experiments
-export_experiments(mlflow.tracking.MlflowClient(), experiments, output_dir, export_source_tags, notebook_formats, use_threads)
+from mlflow_export_import.bulk.export_models import export_models
+from mlflow_export_import.bulk import write_export_manifest_file
+
+ALL_STAGES = "Production,Staging,Archived,None" 
+
+start_time = time.time()
+client = mlflow.tracking.MlflowClient()
+export_models(
+    client,
+    model_names=models, 
+    output_dir=output_dir,
+    export_source_tags=export_source_tags,
+    notebook_formats=notebook_formats, 
+    stages=ALL_STAGES, 
+    use_threads=use_threads)
+duration = round(time.time() - start_time, 1)
+write_export_manifest_file(output_dir, duration, ALL_STAGES, notebook_formats)
+print(f"Duraton for entire tracking server export: {duration} seconds")
 
 # COMMAND ----------
 
@@ -69,7 +84,7 @@ output_dir
 
 # COMMAND ----------
 
-# MAGIC %md # Import Experiments
+# MAGIC %md # Import Models
 # MAGIC 
 # MAGIC ## To be executed in destination workspace
 
@@ -79,10 +94,14 @@ dbutils.widgets.text("1. Input directory", "")
 input_dir = dbutils.widgets.get("1. Input directory")
 input_dir = input_dir.replace("dbfs:","/dbfs")
 
-dbutils.widgets.dropdown("2. Use threads","no",["yes","no"])
-use_threads = dbutils.widgets.get("2. Use threads") == "yes"
+dbutils.widgets.dropdown("2. Import source tags","no",["yes","no"])
+import_source_tags = dbutils.widgets.get("2. Import source tags") == "yes"
+
+dbutils.widgets.dropdown("3. Use threads","no",["yes","no"])
+use_threads = dbutils.widgets.get("3. Use threads") == "yes"
 
 print("input_dir:",input_dir)
+print("import_source_tags:",import_source_tags)
 print("use_threads:",use_threads)
 
 # COMMAND ----------
@@ -91,10 +110,12 @@ if len(input_dir)==0: raise Exception("ERROR: Input directory is required")
 
 # COMMAND ----------
 
-from mlflow_export_import.bulk.import_experiments import import_experiments
+from mlflow_export_import.bulk.import_models import import_all
 import mlflow
-import_experiments(
-    client=mlflow.tracking.MlflowClient(),
-    input_dir=input_dir, 
-    use_src_user_id=False, 
-    use_threads=use_threads)
+import_all(
+  client=mlflow.tracking.MlflowClient(),
+  input_dir=input_dir,
+  delete_model=False,
+  import_source_tags=import_source_tags,
+  use_threads=use_threads
+)
